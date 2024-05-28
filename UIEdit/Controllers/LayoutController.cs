@@ -930,7 +930,6 @@ namespace UIEdit.Controllers
                     temp.divider = 2d;
                     temp.block = tb;
                     _blocksToArrange.Add(temp);
-                    tb.Background = Brushes.AliceBlue;
                 }
                 if (control.Align == 2)
                 {
