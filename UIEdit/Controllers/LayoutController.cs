@@ -28,6 +28,7 @@ namespace UIEdit.Controllers
         {
             public double x;
             public double y;
+            public double divider = 1d;
             public TextBlock block;
         }
         private HashSet<TextBlockPosition> _blocksToArrange = new HashSet<TextBlockPosition>();
@@ -920,13 +921,24 @@ namespace UIEdit.Controllers
                     Foreground = string.IsNullOrEmpty(control.Color) ? Brushes.White : Core.GetColorBrushFromString(control.Color),
                     FontFamily = string.IsNullOrEmpty(control.FontName) ? new FontFamily("方正细黑一简体") : new FontFamily(control.FontName),
                 };
-                if (control.Align == 1) tb.TextAlignment = TextAlignment.Center;
+                if (control.Align == 1)
+                {
+                    // TODO: There are probably better ways to do this, but none of them work =(
+                    var temp = new TextBlockPosition();
+                    temp.y = control.Y;
+                    temp.x = control.X;
+                    temp.divider = 2d;
+                    temp.block = tb;
+                    _blocksToArrange.Add(temp);
+                    tb.Background = Brushes.AliceBlue;
+                }
                 if (control.Align == 2)
                 {
                     // TODO: There are probably better ways to do this, but none of them work =(
                     var temp = new TextBlockPosition();
                     temp.y = control.Y;
                     temp.x = control.X;
+                    temp.divider = 1d;
                     temp.block = tb;
                     _blocksToArrange.Add(temp);
                 }
@@ -1263,9 +1275,8 @@ namespace UIEdit.Controllers
             // TODO: Second part of measuring textblock and placing it at right position
             foreach(var item in _blocksToArrange)
             {
-                item.block.Measure(new Size(0, 0));
                 Size size = MeasureString(item.block);
-                item.block.RenderTransform = new TranslateTransform(item.x- size.Width, item.y);
+                item.block.RenderTransform = new TranslateTransform(item.x- (size.Width / item.divider), item.y);
                 //System.Windows.Forms.MessageBox.Show($"TEXT:{item.block.Text}; WIDTH:{item.block.ActualWidth}");
             }
             _blocksToArrange.Clear();
