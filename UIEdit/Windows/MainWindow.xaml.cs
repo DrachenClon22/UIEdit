@@ -140,7 +140,7 @@ namespace UIEdit.Windows {
         }
 
         private void BtnGotoGithub_OnClick(object sender, RoutedEventArgs e) {
-            System.Diagnostics.Process.Start("https://github.com/perfectdev/UIEdit");
+            System.Diagnostics.Process.Start("https://github.com/DrachenClon22/UIEdit");
         }
 
         private void CbBtnName_Checked(object sender, RoutedEventArgs e)
