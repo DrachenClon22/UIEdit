@@ -924,12 +924,19 @@ namespace UIEdit.Controllers
                 if (control.Align == 1)
                 {
                     // TODO: There are probably better ways to do this, but none of them work =(
-                    var temp = new TextBlockPosition();
-                    temp.y = control.Y;
-                    temp.x = control.X;
-                    temp.divider = 2d;
-                    temp.block = tb;
-                    _blocksToArrange.Add(temp);
+                    if (control.Width > 0)
+                    {
+                        tb.TextAlignment = TextAlignment.Center;
+                    } else
+                    {
+                        var temp = new TextBlockPosition();
+                        temp.y = control.Y;
+                        temp.x = control.X;
+                        temp.divider = 2d;
+                        temp.block = tb;
+                        _blocksToArrange.Add(temp);
+                    }
+                    
                 }
                 if (control.Align == 2)
                 {
