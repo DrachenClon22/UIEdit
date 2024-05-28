@@ -1,15 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using System.Xml;
 using UIEdit.Models;
 using UIEdit.Utils;
 using UIEdit.Windows;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
+using Orientation = System.Windows.Controls.Orientation;
 
 namespace UIEdit.Controllers
 {
@@ -18,6 +24,13 @@ namespace UIEdit.Controllers
         public string SourceText { get; set; }
         public static UIDialog Dialog { get; set; }
         public static LayoutController Instance;
+        public class TextBlockPosition
+        {
+            public double x;
+            public double y;
+            public TextBlock block;
+        }
+        private HashSet<TextBlockPosition> _blocksToArrange = new HashSet<TextBlockPosition>();
 
         public LayoutController()
         {
@@ -903,11 +916,20 @@ namespace UIEdit.Controllers
                     Width = control.Width == 0 ? Double.NaN : control.Width,
                     Height = control.Height == 0 ? Double.NaN : control.Height,
                     TextWrapping = TextWrapping.WrapWithOverflow,
-                    Margin = new Thickness(control.X, control.Y, 0, 0),
+                    RenderTransform = new TranslateTransform(control.X, control.Y),
                     Foreground = string.IsNullOrEmpty(control.Color) ? Brushes.White : Core.GetColorBrushFromString(control.Color),
                     FontFamily = string.IsNullOrEmpty(control.FontName) ? new FontFamily("方正细黑一简体") : new FontFamily(control.FontName),
                 };
                 if (control.Align == 1) tb.TextAlignment = TextAlignment.Center;
+                if (control.Align == 2)
+                {
+                    // TODO: There are probably better ways to do this, but none of them work =(
+                    var temp = new TextBlockPosition();
+                    temp.y = control.Y;
+                    temp.x = control.X;
+                    temp.block = tb;
+                    _blocksToArrange.Add(temp);
+                }
                 if (control.FontSize > 1) tb.FontSize = control.FontSize + 3;
                 dialogCanvas.Children.Add(tb);
             }
@@ -1238,6 +1260,30 @@ namespace UIEdit.Controllers
                 treeStack.Children.Add(treeLineStack3);
                 dialogCanvas.Children.Add(treeStack);
             }
+            // TODO: Second part of measuring textblock and placing it at right position
+            foreach(var item in _blocksToArrange)
+            {
+                item.block.Measure(new Size(0, 0));
+                Size size = MeasureString(item.block);
+                item.block.RenderTransform = new TranslateTransform(item.x- size.Width, item.y);
+                //System.Windows.Forms.MessageBox.Show($"TEXT:{item.block.Text}; WIDTH:{item.block.ActualWidth}");
+            }
+            _blocksToArrange.Clear();
+        }
+
+        private Size MeasureString(TextBlock textBlock)
+        {
+            var formattedText = new FormattedText(
+                textBlock.Text,
+                CultureInfo.CurrentCulture,
+                System.Windows.FlowDirection.LeftToRight,
+                new Typeface(textBlock.FontFamily, textBlock.FontStyle, textBlock.FontWeight, textBlock.FontStretch),
+                textBlock.FontSize,
+                Brushes.Black,
+                new NumberSubstitution(),
+                VisualTreeHelper.GetDpi(textBlock).PixelsPerDip);
+
+            return new Size(formattedText.Width, formattedText.Height);
         }
     }
 }
