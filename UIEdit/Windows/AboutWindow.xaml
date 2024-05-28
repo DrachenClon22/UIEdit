@@ -24,7 +24,7 @@
         </Grid>
         <Grid Grid.Column="1">
             <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-                <TextBlock Text="Version: 1.1.0" Foreground="BlueViolet" Grid.Column="1" Margin="10 0" HorizontalAlignment="Left"/>
+                <TextBlock Text="Version: 1.1.1" Foreground="BlueViolet" Grid.Column="1" Margin="10 0" HorizontalAlignment="Left"/>
                 <TextBlock Text="This is a freeware" Foreground="BlueViolet" Grid.Column="1" Margin="10 0" HorizontalAlignment="Left"/>
             </StackPanel>
         </Grid>
